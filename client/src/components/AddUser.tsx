@@ -1,52 +1,93 @@
+import React, { useState, FormEvent } from 'react';
 import { useMutation } from '@apollo/client';
-import {GET_USERS, ADD_USER} from '../graphql/queries';
+import { TextField, Button, Snackbar, Grid } from '@mui/material';
+import { Alert } from '@mui/material';
+import { GET_USERS, ADD_USER } from '../graphql/queries';
 
 const AddUser = () => {
-    let inputName: HTMLInputElement | null;
-    let inputPassword: HTMLInputElement | null;
-    let inputEmail: HTMLInputElement | null;
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
 
-    const [addUser, { loading, error, client }] = useMutation(ADD_USER);
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    if (loading) return <p>'Submitting...'</p>;
+  const [addUser, { loading }] = useMutation(ADD_USER, {
+    onCompleted: () => setOpen(true),
+    onError: (error) => setError(error.message)
+  });
 
-    return (
-      <div>
-        {error && <p>`Submission error! ${error.message}`</p>}
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            addUser({
-              variables: { 
-                username: inputName?.value, 
-                password: inputPassword?.value, 
-                email: inputEmail?.value 
-                },
-              refetchQueries: [{ query: GET_USERS }],      
-              onError: () => client.refetchQueries({ include: [GET_USERS] })
-            });
-          }}
-        >
-          <input
-            ref={node => { inputName = node; }}
-            placeholder='Name'
-            required
-          />
-          <input
-            ref={node => { inputPassword = node; }}
-            placeholder='Password'
-            required
-          />
-          <input
-            type='email'
-            ref={node => { inputEmail = node; }}
-            placeholder='Email'
-            required
-          />
-          <button type="submit">Add User</button>
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    addUser({
+      variables: { username, password, email },
+      refetchQueries: [{ query: GET_USERS }]
+    });
+  };
+
+  return (
+    <Grid container spacing={2} style={{ marginBottom: '20px' }}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="success">
+          User added successfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error">
+          {error}
+        </Alert>
+      </Snackbar>
+      <Grid item xs={12}>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                sx={{ paddingY: '6px' }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Password"
+                variant="outlined"
+                type="password"
+                fullWidth
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                sx={{ paddingY: '6px' }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Email"
+                variant="outlined"
+                type="email"
+                fullWidth
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                sx={{ paddingY: '6px' }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" disabled={loading}>
+                Add User
+              </Button>
+            </Grid>
+          </Grid>
         </form>
-      </div>
-    );
-  }
+      </Grid>
+    </Grid>
+  );
+};
 
-  export default AddUser;
+export default AddUser;

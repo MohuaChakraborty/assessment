@@ -31,3 +31,11 @@ mutation AddUser($username: String, $password: String, $email: String) {
   }
 }
 `;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id) {
+      _id
+    }
+  }
+`;

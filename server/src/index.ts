@@ -9,15 +9,13 @@ import cors from 'cors';
 import { User as UserModel } from './models/user.js';
 import Users from './dataSources/users.js';
 import pkg from 'body-parser';
-import { UserDocument } from './types.js';
+import serverless from 'serverless-http';
+
 const { json } = pkg;
 
 await mongoose.connect('mongodb://127.0.0.1:27017/ragnemt');
 
 const app = express();
-// Our httpServer handles incoming requests to our Express app.
-// Below, we tell Apollo Server to "drain" this httpServer,
-// enabling our servers to shut down gracefully.
 const httpServer = http.createServer(app);
 
 const typeDefs = `#graphql
@@ -33,17 +31,18 @@ const typeDefs = `#graphql
   }
   type Mutation {
     addUser(username: String, password: String, email: String): User
+    deleteUser(id: ID!): User
   }
 `;
 
 const resolvers = {
   Query: {
-    users: (_parent: any, _args: any, { dataSourses }) => {
-      return  dataSourses.users.getUsers();
+    users: (_parent: any, _args: any, { dataSources }: any) => {
+      return dataSources.users.getUsers();
     },
-    user: (_parent: any, { _id }, { dataSourses }) => {
-      return dataSourses.users.getUser(_id)
-        .then((res: UserDocument) => {
+    user: (_parent: any, { _id }: any, { dataSources }: any) => {
+      return dataSources.users.getUser(_id)
+        .then((res: any) => {
           if (!res) {
             throw new GraphQLError(
               `User with User Id ${_id} does not exist.`
@@ -54,9 +53,18 @@ const resolvers = {
     },
   },
   Mutation: {
-    addUser: (_parent: any, { username, password, email }, { dataSourses }) => {
-      return dataSourses.users.addUser(username, password, email)
-        .then((res: { insertedIds: ObjectId[]; }) => ({ _id: res.insertedIds[0], username, password, email }))
+    addUser: (_parent: any, { username, password, email }: any, { dataSources }: any) => {
+      return dataSources.users.addUser(username, password, email)
+        .then((res: any) => ({ _id: res.insertedIds[0], username, password, email }))
+    },
+    deleteUser: (_parent: any, { id }: any, { dataSources }: any) => {
+      return dataSources.users.deleteUser(id)
+        .then((deletedUser: any) => {
+          if (!deletedUser) {
+            throw new GraphQLError(`User with ID ${id} does not exist.`);
+          }
+          return deletedUser;
+        });
     }
   }
 }
@@ -71,7 +79,6 @@ const server = new ApolloServer<MyContext>({
   typeDefs,
   resolvers,
   plugins: [
-    // Proper shutdown for the HTTP server.
     ApolloServerPluginDrainHttpServer({ httpServer }),
   ],
 });
@@ -81,13 +88,21 @@ app.use(
   cors<cors.CorsRequest>(),
   json(),
   expressMiddleware(server, {
-    context: async ({ req }) => ({
+    context: async ({ req }: any) => ({
       token: req.headers.token,
-      dataSourses: {
+      dataSources: {
         users: new Users(await UserModel.createCollection())
       }
-    }),
+    }),    
   }),
 );
 
-app.listen({ port: 4000 }, () => console.log(`🚀 Server ready at http://localhost:4000`))
+let handler: any;
+if (process.env.NODE_ENV === 'production') {
+  handler = serverless(app);
+} else {
+  app.listen({ port: 4000 }, () => console.log(`🚀 Server ready at http://localhost:4000`))
+}
+
+export { handler };
+

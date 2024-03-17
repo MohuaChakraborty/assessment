@@ -9,10 +9,15 @@ export default class Users extends MongoDataSource<UserDocument, Context> {
   }
 
   getUser(userId: ObjectId) {
-    return this.collection.findOne({_id: new ObjectId(userId)});
+    return this.collection.findOne({ _id: new ObjectId(userId) });
   }
 
   addUser(username: string, password: string, email: string) {
-    return this.collection.insertMany([{username, password, email}]);
+    return this.collection.insertOne({ username, password, email });
+  }
+
+  async deleteUser(userId: ObjectId) {
+    const deletedUser = await this.collection.findOneAndDelete({ _id: new ObjectId(userId) });
+    return deletedUser.value;
   }
 }
