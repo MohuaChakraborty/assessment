@@ -1,20 +1,40 @@
 import {
-    Typography,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-  } from "@mui/material";
-  import DeleteIcon from "@mui/icons-material/Delete"; 
-  
-  const DeleteUserModal = ({ userId, open, onClose, onDelete }: { userId: string, open: boolean, onClose:()=>void, onDelete:(userId: string)=>void}) => {
-    const handleDelete = () => {
-      onDelete(userId);
-      onClose();
-    };
-  
-    return (
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+} from "@mui/material";
+
+const DeleteUserModal = ({
+  userId,
+  open,
+  onClose,
+  onDelete,
+  showSnackbar,
+  setShowSnackbar,
+}: {
+  userId: string;
+  open: boolean;
+  onClose: () => void;
+  onDelete: (userId: string) => void;
+  showSnackbar: boolean;
+  setShowSnackbar: (value: boolean) => void;
+}) => {
+  const handleDelete = () => {
+    onDelete(userId);
+    onClose();
+    setShowSnackbar(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
+  return (
+    <>
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
@@ -27,8 +47,8 @@ import {
           </Button>
         </DialogActions>
       </Dialog>
-    );
-  };
-  
-  export default DeleteUserModal;
-  
+   </>
+  );
+};
+
+export default DeleteUserModal;

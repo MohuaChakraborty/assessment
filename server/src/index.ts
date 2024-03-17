@@ -53,10 +53,20 @@ const resolvers = {
     },
   },
   Mutation: {
-    addUser: (_parent: any, { username, password, email }: any, { dataSources }: any) => {
-      return dataSources.users.addUser(username, password, email)
-        .then((res: any) => ({ _id: res.insertedIds[0], username, password, email }))
+    addUser: async (_parent: any, { username, password, email }: any, { dataSources }: any) => {
+      const existingUser = await dataSources.users.getUserByEmail(email);
+      if (existingUser) {
+        throw new GraphQLError('User with this email already exists.');
+      }
+      const insertedUser = await dataSources.users.addUser(username, password, email);
+      return {
+        _id: insertedUser._id,
+        username,
+        password,
+        email
+      };
     },
+
     deleteUser: (_parent: any, { id }: any, { dataSources }: any) => {
       return dataSources.users.deleteUser(id)
         .then((deletedUser: any) => {
@@ -67,6 +77,7 @@ const resolvers = {
         });
     }
   }
+  
 }
 
 interface MyContext {

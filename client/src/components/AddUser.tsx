@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { useMutation } from '@apollo/client';
 import { TextField, Button, Snackbar, Grid } from '@mui/material';
 import { Alert } from '@mui/material';
@@ -17,7 +17,10 @@ const AddUser = () => {
 
   const [addUser, { loading }] = useMutation(ADD_USER, {
     onCompleted: () => setOpen(true),
-    onError: (error) => setError(error.message)
+    onError: (error) => {
+      setError(error.message);
+      setOpen(true);
+    }
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -28,16 +31,20 @@ const AddUser = () => {
     });
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpen(false);
+      setError('');
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [open]);
+
   return (
     <Grid container spacing={2} style={{ marginBottom: '20px' }}>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success">
-          User added successfully!
-        </Alert>
-      </Snackbar>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error">
-          {error}
+        <Alert onClose={handleClose} severity={error ? "error" : "success"}>
+          {error ? error : "User added successfully!"}
         </Alert>
       </Snackbar>
       <Grid item xs={12}>
@@ -50,7 +57,6 @@ const AddUser = () => {
                 fullWidth
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                sx={{ paddingY: '6px' }}
                 required
               />
             </Grid>
@@ -62,7 +68,6 @@ const AddUser = () => {
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                sx={{ paddingY: '6px' }}
                 required
               />
             </Grid>
@@ -74,7 +79,6 @@ const AddUser = () => {
                 fullWidth
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                sx={{ paddingY: '6px' }}
                 required
               />
             </Grid>

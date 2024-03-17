@@ -27,7 +27,6 @@ const GetUser = () => {
                 placeholder="User ID"
                 required
                 fullWidth
-                sx={{ padding: '6px' }}
               />
             </Grid>
             <Grid item xs={3}>
