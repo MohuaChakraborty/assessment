@@ -29,7 +29,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSignup }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <Typography variant="h4" gutterBottom>{mode === 'login' ? 'Login' : 'Signup'}</Typography>
       <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '300px' }}>
         <TextField

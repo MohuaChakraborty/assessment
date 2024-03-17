@@ -16,7 +16,12 @@ const AddUser = () => {
   };
 
   const [addUser, { loading }] = useMutation(ADD_USER, {
-    onCompleted: () => setOpen(true),
+    onCompleted: () => {
+      setOpen(true);
+      setUsername('');
+      setPassword('');
+      setEmail('');
+    },
     onError: (error) => {
       setError(error.message);
       setOpen(true);
