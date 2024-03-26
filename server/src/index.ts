@@ -24,6 +24,9 @@ const typeDefs = `#graphql
     username: String
     password: String
     email: String
+    registrationDate: String
+    accountStatus: String
+    roles: [String]
   }
   type Query {
     users: [User]
@@ -77,7 +80,6 @@ const resolvers = {
         });
     }
   }
-  
 }
 
 interface MyContext {
@@ -116,4 +118,3 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export { handler };
-

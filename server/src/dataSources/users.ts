@@ -17,7 +17,14 @@ export default class Users extends MongoDataSource<UserDocument, Context> {
   }
 
   addUser(username: string, password: string, email: string) {
-    return this.collection.insertOne({ username, password, email });
+    return this.collection.insertOne({
+      username,
+      password,
+      email,
+      registrationDate: new Date(),
+      accountStatus: "active",
+      roles: ["user"]
+    });
   }  
 
   async deleteUser(userId: ObjectId) {

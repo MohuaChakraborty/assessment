@@ -6,48 +6,46 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  DialogContentText,
 } from "@mui/material";
 
-const DeleteUserModal = ({
-  userId,
+
+interface DeleteUserModalProps {
+  userIds: string[];
+  open: boolean;
+  onClose: () => void;
+  onDelete: (userIds: string[]) => void;
+  showSnackbar: boolean;
+  setShowSnackbar: (value: boolean) => void;
+}
+
+const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
+  userIds,
   open,
   onClose,
   onDelete,
   showSnackbar,
   setShowSnackbar,
-}: {
-  userId: string;
-  open: boolean;
-  onClose: () => void;
-  onDelete: (userId: string) => void;
-  showSnackbar: boolean;
-  setShowSnackbar: (value: boolean) => void;
 }) => {
   const handleDelete = () => {
-    onDelete(userId);
-    onClose();
+    onDelete(userIds);
     setShowSnackbar(true);
-  };
-
-  const handleSnackbarClose = () => {
-    setShowSnackbar(false);
+    onClose();
   };
 
   return (
-    <>
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this user?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-   </>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Delete User(s)</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete selected user(s)?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleDelete}>Delete</Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

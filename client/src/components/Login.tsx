@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -12,6 +13,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSignup }) => {
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
 
+  const navigate = useNavigate();
+
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(''); 
@@ -23,6 +26,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSignup }) => {
 
     if (mode === 'login') {
       onLogin();
+      navigate('/users');
     } else {
       onSignup();
     }

@@ -6,6 +6,11 @@ const userSchema = new Schema({
   username: String,
   password: String,
   email: String,
+  registrationDate: { type: Date, default: Date.now },
+  lastLogin: Date,
+  accountStatus: { type: String, default: "active" }, 
+  roles: { type: [String], default: ["user"] }, 
+  activityLog: [String] 
 });
 
 export const User = mongoose.model("user", userSchema);
